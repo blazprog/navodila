@@ -29,7 +29,6 @@
 
 ** povezava na stranke
 
-- inovatim ::  psql -h openerp.novaqua.si -p 6543 -U odoo8 -d inovatim
-- relax :: psql -h 193.77.127.130 -U odoo8 -d odoo
-- fortrade :: 192.168.1.8 port 5432
-- tenovis :: 185.2.103.136 port 5432
+psql -h [hostaddress] -p 6543 -U [username] -d [ime baze]
+hostaddress je lahko ip ali ime
+	    
