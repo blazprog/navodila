@@ -1,0 +1,10 @@
+** Goto definition
+C] goto definition
+Co skok nazaj
+
+** Tags
+-kreiranje tagov
+find . -name "*.py" -print | etags
+Ukaz ustvari datoteko TAGS v trenutnem direktoriju
+- uporaba tagov
+M-x find-tag

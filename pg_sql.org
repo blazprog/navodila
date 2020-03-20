@@ -1,0 +1,37 @@
+* Primeri sql stavkov
+
+** Update iz več tabel
+#+BEGIN_SRC sql
+update account_move_line aml
+set relax_exchange_status = 101
+from account_move am where
+am.id = aml.move_id and
+am.date < '2019-09-06'
+and aml.account_id in (select id from account_account where export_to_rs = true)
+#+END_SRC
+
+
+** Nastavim autoincrement na novo vrednost
+#+BEGIN_SRC sql
+SELECT setval(pg_get_serial_sequence('res_partner_bank', 'id'), 27429) ;
+#+END_SRC
+
+
+** zaustavitev vseh procesov na bazi
+#+BEGIN_SRC sql
+SELECT pg_terminate_backend( pid )
+FROM pg_stat_activity
+WHERE pid <> pg_backend_pid( )
+	AND datname = 'name of database';
+-- rename the database (it should now have zero clients)
+ALTER DATABASE "name of database" RENAME TO "new name of database";
+#+END_SRC
+
+
+** sql ki uporablja array (posebnost postgresa)
+#+BEGIN_SRC sql
+SELECT country_id, array_agg(id) 
+FROM res_partner 
+WHERE active=true AND country_id IS NOT NULL 
+GROUP BY country_id')
+#+END_SRC

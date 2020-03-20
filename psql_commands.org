@@ -1,0 +1,10 @@
+* Koristni ukazi v psq command line
+
+- \x :: spremeni nacin izpisa
+- \dt :: izpis definicije tabele
+- \o :: nastavim datoteko za output
+- \connect :: povezava na drugo bazo
+
+  
+
+
