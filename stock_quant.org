@@ -1,0 +1,5 @@
+* NIVELACIJA
+
+** Na stock_quant nova polja: prejsnja vrednost, je niveliran, datum nivelacije
+** Na kalkulacijo ne pusti dodajat prevzemov, na katere je vezna niveliran kvant
+** Wizard za nivelacijo po artiklu in skladiscu, ki na vse kvante napise novo vrednost in si zapomni staro.

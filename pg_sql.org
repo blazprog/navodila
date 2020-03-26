@@ -2,7 +2,7 @@
 
 ** Update iz več tabel
 #+BEGIN_SRC sql
-update account_move_line aml
+*** update account_move_line aml
 set relax_exchange_status = 101
 from account_move am where
 am.id = aml.move_id and

@@ -1,0 +1,153 @@
+* Primeri kode v odoo-ju
+** owerwrite create and write  
+
+Primera sta iz potnih nalogov
+#+BEGIN_SRC python
+@api.model
+def create(self, vals):
+    if 'foreign_currency' in vals:
+	foreign_currency =  vals.get('foreign_currency', False)
+	if foreign_currency:
+	    date = fields.Date.from_string((vals['currency_cost_date']))
+	    currency_id = vals['currency']
+	    ex_rate = self.env['res.currency'].date_exchange_rate(date, currency_id)
+	    try:
+		vals['price'] = vals['currency_price'] / ex_rate
+	    except ZeroDivisionError:
+		vals['price'] = 0
+
+	    # izracunam novo ceno
+	    pass
+	else:
+	    # izbrisem nepotrebne vrednosti
+	    vals["currency"] = False
+	    vals["currency_price"] = False
+	    vals["currency_cost_date"] = False
+    return super(CostLine, self).create(vals)
+
+@api.multi
+def write(self, vals):
+    # ali je prislo do sprememb v kaksni od vrednosti za izracun cene v tuji valuti
+    if ('foreign_currency' in vals or
+	'currency' in vals or
+	'currenc_price' in vals or
+	"currency_cost_date" in vals):
+	# vrednosti berem bodisi iz vals - novo vnesene vrednosti
+	# ce pa jih ni v vals, potem pa iz self, vrednosti vnesene ze prej
+	if 'foreign_currency' in vals:
+	    foreign_currency = vals.get('foreign_currency', False)
+	else:
+	    foreign_currency = self.foreign_currency
+	if foreign_currency:
+	    currency_id = vals.get('currency', False) or self.currency
+	    currency_price = vals.get('currency_price', False) or self.currency_price
+	    currency_cost_date = vals.get('currency_cost_date', False) or self.currency_cost_date
+	    ex_rate = self.env['res.currency'].date_exchange_rate(fields.Date.from_string(currency_cost_date),
+							    currency_id)
+	    try:
+		vals['price'] = currency_price / ex_rate
+	    except ZeroDivisionError:
+		vals['price'] = 0
+	else:
+	    # izbrisem nepotrebne vrednosti
+	    vals["currency"] = False
+	    vals["currency_price"] = False
+	    vals["currency_cost_date"] = False
+    return super(CostLine, self).write(vals)
+#+END_SRC
+
+** computed field
+** klicanje parametriziranih sql stavkov 
+  *** uvodne opombe
+  - self.env.cr is a thin wrapper around psycopg2 cursor
+  - vse spremembe gredo mimo varnostnih nastavitev
+  - [[https://www.psycopg.org/docs/usage.html][Dokumentacija psycopg2]] 
+  
+  *** s pozicijskimi parametri
+  #+BEGIN_SRC python
+    ssql = """
+	SELECT a.id,  a.name, a.inventory_number,
+	h.name as reason, h.date, a.purchase_value, a.previous_depreciation_value
+	FROM account_asset_asset a INNER JOIN asset_history_revaluation h
+	ON a.id = h.asset_id
+	WHERE h.asset_value_change = 'write_off' AND h.date BETWEEN %s and %s 
+	AND a.company_id = %s
+    """
+
+    params = (self.eliminated_date_from, self.eliminated_date_to, self.env.user.company_id.id)
+    self.env.cr.execute(ssql, param)
+   #+END_SRC
+
+  *** z imenovanimi parametri    
+  Named arguments are supported too using %(name)s placeholders in the query
+  and specifying the values into a mapping. Using named arguments allows to
+  specify the values in any order and to repeat the same value in several 
+  places in the query:
+
+  #+BEGIN_SRC python
+  ssql = """
+  INSERT INTO some_table (an_int, a_date, another_date, a_string)
+  VALUES (%(int)s, %(date)s, %(date)s, %(str)s)
+  """
+  params = {'int': 10, 'str': "O'Reilly", 'date': datetime.date(2005, 11, 18)})
+  self.env.cr.execute(ssql, param)
+  #+END_SRC
+** nastavljanje privzetih vrednosti
+   #+BEGIN_SRC python
+    class Nivelacija(models.TransientModel):
+	_name = 'nivelation'
+
+	def _get_default_date(self):
+	    return fields.Date().to_string(date.today())
+
+	nivelation_date = fields.Date(default=_get_default_date)
+   #+END_SRC
+
+** nastavljanje constraintov
+   *** opombe
+   Models can have validations preventing them from entering undesired conditions. Two
+   different types of constraint can be used: the ones checked at the database level and
+   the ones checked at the server level.
+
+   Database level constraints are limited to the constraints supported by PostgreSQL. The most
+   commonly used are the UNIQUE constraints, but CHECK and EXCLUDE constraints can also
+   be used. If these are not enough for our needs, we can use Odoo server level
+   constraints, written in python code
+
+   *** primer kode
+   #+BEGIN_SRC python
+   from openerp import models, fields
+   class LibraryBook(models.Model):
+       _name = 'library.book'
+       name = fields.Char('Title', required=True)
+       date_release = fields.Date('Release Date')
+
+       _sql_constraints = [
+	    ('name_uniq',
+	    'UNIQUE (name)',
+	    'Book title must be unique.')
+	]
+
+	@api.constrains('date_release')
+	def _check_release_date(self):
+	    for r in self:
+		if r.date_release > fields.Date.today():
+		raise models.ValidationError('Release date must be in the past')
+   #+END_SRC
+** prikaz viewa iz kode
+   *** reopen wizard
+   #+BEGIN_SRC python
+    return {
+	'type': 'ir.actions.act_window',
+	'res_model': self.name,
+	'view_mode': 'form',
+	'res_id': self.id,
+	'views': [(False, 'form')],
+	'target': 'new',
+    }
+   #+END_SRC
+   
+   *** akciji podaj točno določen view
+   #+BEGIN_SRC python
+   
+   #+END_SRC
