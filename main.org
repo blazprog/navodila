@@ -5,3 +5,5 @@
 *** [[file:pg_sql.org::*Primeri%20sql%20stavkov][Primeri sql stavkov]]
 *** [[file:psql_commands.org::*Koristni%20ukazi%20v%20psq%20command%20line][Koristni ukazi v psq command line]]
 
+** Python
+*** Regular expressions

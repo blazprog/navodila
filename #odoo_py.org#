@@ -184,6 +184,7 @@ def open_orders_to_confirm(self):
 	('state', '=', 'finished')
     ]
     user_id = self.env.user.employee_ids[0]
+    # ce ni v grupi manager, lahko vidi samo tiste, kjer je nalogodajalec
     if not self.env.user.has_group("mentis_potni_nalogi.travel_order_manager"):
 	my_to_confirm = self.env['to_travel_order'].sudo().search([
 	    ('originator_id', '=', user_id.id)

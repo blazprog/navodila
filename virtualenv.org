@@ -1,0 +1,10 @@
+* Delo z virtual env
+  
+** Za razne verzije pythona
+[[https://docs.python.org/3/library/venv.html][Creation of virtual environments]]
+#+BEGIN_SRC shell
+>>> python3 -m venv /path/to/new/virtual/environment
+#+END_SRC
+
+
+** Kako narediti requirements.txt

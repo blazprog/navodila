@@ -1,3 +1,5 @@
+* Emacs recepti
+
 ** Goto definition
 C] goto definition
 Co skok nazaj
@@ -8,3 +10,12 @@ find . -name "*.py" -print | etags
 Ukaz ustvari datoteko TAGS v trenutnem direktoriju
 - uporaba tagov
 M-x find-tag
+
+** Kopiranje linka iz interneta  in paste v dokument
+the default workflow (after putting the URL in your clipboard) is:
+- C-c C-l
+- C-y RET
+- description RET
+  
+** Definiranje svojih bližnjic v evil-mode
+
