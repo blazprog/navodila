@@ -57,6 +57,41 @@ def write(self, vals):
 #+END_SRC
 
 ** computed field
+#+BEGIN_SRC python
+from datetime import timedelta as td
+from openerp.fields impord Date as fDate
+
+class LibraryBook(models.Model):
+# ...
+    age_days = fields.Float(
+    string='Days Since Release',
+    compute='_compute_age',
+    inverse='_inverse_age',
+    search='_search_age',
+    store=False,
+    compute_sudo=False,
+    )
+
+    @api.depends('date_release')
+    def _compute_age(self):
+	today = fDate.from_string(fDate.today())
+	for book in self.filtered('date_release'):
+	    delta = (fDate.from_string(book.date_release - today)
+	    book.age_days = delta.days
+
+    def _inverse_age(self): 
+        today = fDate.from_string(fDate.today())
+	for book in self.filtered('date_release'):
+	    d = td(days=book.age_days) - today
+	    book.date_release = fDate.to_string(d)
+
+    def _search_age(self, operator, value):
+	today = fDate.from_string(fDate.today())
+	value_days = td(days=value)
+	value_date = fDate.to_string(today - value_days)
+	return [('date_release', operator, value_date)]
+
+#+END_SRC
 ** klicanje parametriziranih sql stavkov 
   *** uvodne opombe
   - self.env.cr is a thin wrapper around psycopg2 cursor
@@ -184,6 +219,7 @@ def open_orders_to_confirm(self):
 	('state', '=', 'finished')
     ]
     user_id = self.env.user.employee_ids[0]
+    # ce ni v grupi manager, lahko vidi samo tiste, kjer je nalogodajalec
     if not self.env.user.has_group("mentis_potni_nalogi.travel_order_manager"):
 	my_to_confirm = self.env['to_travel_order'].sudo().search([
 	    ('originator_id', '=', user_id.id)
