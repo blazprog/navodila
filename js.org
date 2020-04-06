@@ -1,0 +1,27 @@
+* Arrow functions
+  
+#+BEGIN_SRC javascript
+hello = function() {
+    return 'Hello';
+}
+
+hello = () => {
+    return 'Hello'
+}
+//It gets shorter! If the function has only one statement, 
+//and the statement returns a value, 
+// you can remove the brackets and the return keyword:
+
+hello = () => "Hello"
+
+#+END_SRC
+
+** Arrow functions with parameters
+#+BEGIN_SRC javascript
+hello = (val) => "Hello " + val; 
+
+// In fact, if you have only one parameter, you can skip 
+// the parentheses as well
+hello = val => "Hello " + val;
+   
+#+END_SRC
